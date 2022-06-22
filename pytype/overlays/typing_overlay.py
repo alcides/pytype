@@ -121,6 +121,7 @@ class Annotated(abstract.AnnotationClass):
       error = "typing.Annotated must have at least 1 annotation"
       self.ctx.errorlog.invalid_annotation(self.ctx.vm.frames, self, error)
     # discard annotations
+    # TODO: This is where the refinement information needs to be stored
     return inner[0]
 
 
