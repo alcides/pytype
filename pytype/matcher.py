@@ -334,7 +334,6 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
       left = self.ctx.annotation_utils.sub_one_annotation(
           self._node, left, [{p.full_name: obj_var for p in type_params}])
     assert not left.formal, left
-
     if isinstance(left, abstract.TypeParameterInstance) and (
         isinstance(left.instance, (abstract.CallableClass,
                                    function.Signature)) or
@@ -800,6 +799,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
         self._noniterable_str_error = NonIterableStrError(left.cls, other_type)
         return None
       base = self.match_from_mro(left.cls, other_type)
+
       if base is None:
         if other_type.is_protocol:
           with self._track_partially_matched_protocols():
@@ -809,6 +809,8 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
           # attribute that needs checking. In the edge case of a protocol being
           # completely empty, everything should match.
           return subst
+        print("TODO Miguel Tavares", other_type)
+        # TODO Miguel Tavares: this is where you should compare the two types!
         return None
       elif isinstance(base, abstract.AMBIGUOUS_OR_EMPTY):
         # An ambiguous base class matches everything.

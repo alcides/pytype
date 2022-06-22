@@ -367,7 +367,9 @@ class AnnotationUtils(utils.ContextWeakrefMixin):
         also added to the allowed set.
     """
     try:
+      print("BEFORE", var.Bindings(node)[0].data.ctx)
       typ = abstract_utils.get_atomic_value(var)
+      print("AFTER", typ)
     except abstract_utils.ConversionError:
       self.ctx.errorlog.ambiguous_annotation(self.ctx.vm.frames, None, name)
       return self.ctx.convert.unsolvable

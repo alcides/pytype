@@ -6,6 +6,8 @@ import sys
 
 from typing import Any, Dict, List, Optional, Union
 
+from pytest import param
+
 from pytype.pyi import classdef
 from pytype.pyi import metadata
 from pytype.pyi import types
@@ -505,9 +507,12 @@ class Definitions:
 
   def _parameterized_type(self, base_type: Any, parameters):
     """Return a parameterized type."""
+    if "Annotated" in str(base_type) + str(parameters):
+      print("B", base_type, parameters)
     if self._matches_named_type(base_type, _LITERAL_TYPES):
       return pytd_literal(parameters, self.aliases)
     elif self._matches_named_type(base_type, _ANNOTATED_TYPES):
+      import sys; sys.exit(1)
       return pytd_annotated(parameters)
     elif self._matches_named_type(base_type, _FINAL_TYPES):
       typ, = parameters

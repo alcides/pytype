@@ -208,13 +208,17 @@ class AnnotationVisitor(visitor.BaseVisitor):
     self._set_subscript_params(node, (typ,) + tuple(params))
 
   def enter_Subscript(self, node):
+    
     if isinstance(node.value, ast3.Attribute):
       node.value = _attribute_to_name(node.value).id
     if getattr(node.value, "id", None) in _ANNOTATED_IDS:
+      # This is used only when importing outside files
       self._convert_typing_annotated(node)
     self.subscripted.append(node.value)
 
   def visit_Subscript(self, node):
+
+    d = str(self._get_subscript_params(node))
     params = self._get_subscript_params(node)
     if type(params) is not tuple:  # pylint: disable=unidiomatic-typecheck
       params = (params,)

@@ -1719,6 +1719,9 @@ class VirtualMachine:
     except abstract_utils.ConversionError:
       pass
     else:
+      # TODO: Alcides
+      # > val.Data(state.node)
+      # [PyTDClass(float)]
       typ = self.ctx.annotation_utils.extract_annotation(
           state.node,
           val,
