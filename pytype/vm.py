@@ -695,9 +695,13 @@ class VirtualMachine:
 
   def _store_value(self, state, name, value, local):
     """Store 'value' under 'name'."""
+
+    print(f"store value state = {state} , name = {name} , value = {value}")
     if local:
       target = self.frame.f_locals
+      print("local")
     else:
+      print("global")
       target = self.frame.f_globals
     node = self.ctx.attribute_handler.set_attribute(state.node, target, name,
                                                     value)

@@ -141,6 +141,7 @@ class AbstractAttributeHandler(utils.ContextWeakrefMixin):
     elif isinstance(obj, (abstract.StaticMethod, abstract.ClassMethod)):
       return self.set_attribute(node, obj.method, name, value)
     elif isinstance(obj, abstract.SimpleValue):
+      print(f"before set_member --> {name}")
       return self._set_member(node, obj, name, value)
     elif isinstance(obj, abstract.BoundFunction):
       return self.set_attribute(node, obj.underlying, name, value)
@@ -597,11 +598,13 @@ class AbstractAttributeHandler(utils.ContextWeakrefMixin):
       # The previous value needs to be loaded at the root node so that
       # (1) it is overwritten by the current value and (2) it is still
       # visible on branches where the current value is not
+      print(f"abstract Instance  -> {name}")
       self._maybe_load_as_instance_attribute(self.ctx.root_node, obj, name)
     elif (self.ctx.vm.frame.func and
           self.ctx.vm.frame.func.data.is_class_builder and
           obj is self.ctx.vm.frame.f_locals and
           any(should_convert_to_func(v) for v in var.data)):
+      print("if complicado")
       # If we are setting a class attribute to a Callable whose type does not
       # come from a user-provided annotation, we convert the Callable to a
       # SimpleFunction, so "self" is accounted for correctly in bound and
@@ -625,6 +628,7 @@ class AbstractAttributeHandler(utils.ContextWeakrefMixin):
 
     variable = obj.members.get(name)
     if variable:
+      print(f"variable {name}")
       old_len = len(variable.bindings)
       variable.PasteVariable(var, node)
       log.debug("Adding choice(s) to %s: %d new values (%d total)", name,
@@ -632,6 +636,9 @@ class AbstractAttributeHandler(utils.ContextWeakrefMixin):
     else:
       log.debug("Setting %s to the %d values in %r",
                 name, len(var.bindings), var)
+      print(f"else -->{name}")
       variable = var.AssignToNewVariable(node)
+      print(f"variable = {variable} ### type = {type(variable)}")
       obj.members[name] = variable
+      print(f"obj = {obj} ### type = {type(obj)}")
     return node

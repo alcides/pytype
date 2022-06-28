@@ -9,8 +9,12 @@ class TestRefined(test_base.BaseTest):
   def test_refined_simple(self):
     self.Check("""
       from typing_extensions import Annotated
-      x: Annotated[float, "a"]
+      x: Annotated[int, "_ > 0"]
+      y: Annotated[int,"_ < 10"]
       x = 1
+      x = 2
+      y = x
+      
     """)
     
 

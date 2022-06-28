@@ -297,6 +297,10 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     return subst
 
   def _match_value_against_type(self, value, other_type, subst, view):
+    print("############################################################")
+    print(f"othertype = {other_type}, and value = {value}, type value = {type(value)}")
+    print("#############################################################")
+    
     """One-way unify value into pytd type given a substitution.
 
     Args:
@@ -308,13 +312,15 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
       A new (or unmodified original) substitution dict if the matching
       succeeded, None otherwise.
     """
+    print(f"### value {value} ###")
     left = value.data
+    print(f"### value.data {left} ###")
     assert isinstance(left, abstract.BaseValue), left
     assert isinstance(other_type, abstract.BaseValue), other_type
-
     # Unwrap Final[T] here
     left = abstract_utils.unwrap_final(left)
     other_type = abstract_utils.unwrap_final(other_type)
+
 
     # Make sure we don't recurse infinitely when matching recursive types.
     if abstract_utils.is_recursive_annotation(other_type):
@@ -507,6 +513,9 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     Returns:
       A new type parameter assignment if the matching succeeded, None otherwise.
     """
+    print(f"########### left _match_type_against_type = {left} , other_type = {other_type} #############")
+    input()
+
     if (isinstance(left, abstract.Empty) and
         isinstance(other_type, abstract.Empty)):
       return subst
@@ -766,6 +775,8 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
       # manually fill in the substitution dictionary.
       return self._subst_with_type_parameters_from(subst, other_type)
 
+  xaa = list()
+
   def _match_instance_against_type(self, left, other_type, subst, view):
     """Checks whether an instance of a type is compatible with a (formal) type.
 
@@ -799,6 +810,19 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
         self._noniterable_str_error = NonIterableStrError(left.cls, other_type)
         return None
       base = self.match_from_mro(left.cls, other_type)
+      print(f"left = {left}, type = {type(left)}, other type = {other_type} , type other_type = {type(other_type)}")
+      print(f"########################### left = {left.pyval} type = {type(left.pyval)} ##############################")
+      print(f"######## other type = {other_type} and type = {type(other_type)} #############")
+      if isinstance(other_type,abstract.PyTDClass):
+        print(f"#################### refinement other type = {other_type.refinement} ###################################")
+      if isinstance(left.pyval, dict):
+
+        self.xaa.append(list(left.pyval.keys())[-1])
+        print(f"appended {list(left.pyval.keys())[-1]} in list {list(left.pyval.keys())}")
+        
+      else: 
+        print(f" left.pyval = {left.pyval} e o tipo é {type(left.pyval)}")
+        print(f"{self.xaa[-1]} = {left.pyval}")
 
       if base is None:
         if other_type.is_protocol:
@@ -811,6 +835,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
           return subst
         print("TODO Miguel Tavares", other_type)
         # TODO Miguel Tavares: this is where you should compare the two types!
+
         return None
       elif isinstance(base, abstract.AMBIGUOUS_OR_EMPTY):
         # An ambiguous base class matches everything.

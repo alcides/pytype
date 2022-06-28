@@ -308,6 +308,7 @@ class PyTDClass(
   def __init__(self, name, pytd_cls, ctx):
     # Apply decorators first, in case they set any properties that later
     # initialization code needs to read.
+    self.refinement = "None"
     self.has_explicit_init = any(x.name == "__init__" for x in pytd_cls.methods)
     pytd_cls, decorated = decorate.process_class(pytd_cls)
     self.pytd_cls = pytd_cls
