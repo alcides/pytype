@@ -1726,12 +1726,19 @@ class VirtualMachine:
       # TODO: Alcides
       # > val.Data(state.node)
       # [PyTDClass(float)]
+
       typ = self.ctx.annotation_utils.extract_annotation(
           state.node,
           val,
           name,
           self.simple_stack(),
           allowed_type_params=self.frame.type_params)
+
+      typ.add_var_name(name)
+        
+      print(f"var_name = {name} refinement = {typ.cls}, typ = {type(typ.pytd_cls)}")
+      # TODO : enviar para o meu codigo z3
+      input()
       self._record_annotation(state.node, op, name, typ)
 
   def byte_STORE_SUBSCR(self, state, op):

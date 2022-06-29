@@ -293,7 +293,6 @@ class InterpreterClass(_instance_base.SimpleValue, class_mixin.Class):
           if isinstance(member, InterpreterClass):
             member.update_official_name(f"{name}.{member.name}")
 
-
 class PyTDClass(
     _instance_base.SimpleValue, class_mixin.Class, mixin.LazyMembers):
   """An abstract wrapper for PyTD class objects.
@@ -308,7 +307,6 @@ class PyTDClass(
   def __init__(self, name, pytd_cls, ctx):
     # Apply decorators first, in case they set any properties that later
     # initialization code needs to read.
-    self.refinement = "None"
     self.has_explicit_init = any(x.name == "__init__" for x in pytd_cls.methods)
     pytd_cls, decorated = decorate.process_class(pytd_cls)
     self.pytd_cls = pytd_cls
@@ -526,6 +524,23 @@ class PyTDClass(
         decorators=self.pytd_cls.decorators,
         slots=self.pytd_cls.slots,
         template=self.pytd_cls.template)
+
+class pyTDClassRefined(PyTDClass):
+
+  def __init__(self, name, pytd_cls, ctx):
+    super().__init__(name, pytd_cls, ctx)
+    self.refinement = "None"
+    self.varName = "None"
+
+
+  def __repr__(self):
+    return "PyTDClassRefined(%s)" % self.name
+
+  def add_var_name(self,name):
+    self.varName = name
+  
+  def add_refinement(self,ref):
+    self.refinement = ref
 
 
 class FunctionPyTDClass(PyTDClass):

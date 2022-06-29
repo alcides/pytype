@@ -679,6 +679,8 @@ class Converter(utils.ContextWeakrefMixin):
             overlay.load_lazy_attribute(base_name)
             return abstract_utils.get_atomic_value(overlay.members[base_name])
         try:
+          cls = abstract.PyTDClassRefined(base_name,pyval,self.ctx)
+          print(f"Create cls = {type(cls)}")
           cls = abstract.PyTDClass.make(base_name, pyval, self.ctx)
         except mro.MROError as e:
           self.ctx.errorlog.mro_error(self.ctx.vm.frames, base_name, e.mro_seqs)

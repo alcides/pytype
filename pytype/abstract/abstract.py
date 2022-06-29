@@ -28,6 +28,7 @@ Class = class_mixin.Class
 BuildClass = _classes.BuildClass
 InterpreterClass = _classes.InterpreterClass
 PyTDClass = _classes.PyTDClass
+PyTDClassRefined = _classes.pyTDClassRefined
 FunctionPyTDClass = _classes.FunctionPyTDClass
 ParameterizedClass = _classes.ParameterizedClass
 CallableClass = _classes.CallableClass

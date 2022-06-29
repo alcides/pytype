@@ -16,6 +16,7 @@ from pytype.overlays import typed_dict
 from pytype.overlays import typing_overlay
 from pytype.pytd import pep484
 from pytype.pytd import pytd_utils
+from pytype.typegraph.cfg import Variable
 
 
 log = logging.getLogger(__name__)
@@ -171,6 +172,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     return datatypes.HashableDict(subst), None
 
   def bad_matches(self, var, other_type):
+    # Miguel: Already have x as the number
     """Match a Variable against a type. Return views that don't match.
 
     Args:
@@ -250,6 +252,9 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
 
   def match_var_against_type(self, var, other_type, subst, view):
     """Match a variable against a type."""
+    print(f"match_var_against_type   var = {var}, other_type = {other_type}")
+
+    # Miguel : ParameterizedClasses , pode ser aqui mas acho que nao 
     self._reset_errors()
     if var.bindings:
       return self._match_value_against_type(view[var], other_type, subst, view)
@@ -272,6 +277,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
 
   def _match_type_param_against_type_param(self, t1, t2, subst, view):
     """Match a TypeVar against another TypeVar."""
+    # Miguel : Não entra aqui
     if t2.constraints:
       assert not t2.bound  # constraints and bounds are mutually exclusive
       # We only check the constraints for t1, not the bound. We wouldn't know
@@ -513,8 +519,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     Returns:
       A new type parameter assignment if the matching succeeded, None otherwise.
     """
-    print(f"########### left _match_type_against_type = {left} , other_type = {other_type} #############")
-    input()
+    # Miguel: Já está como numero aqui
 
     if (isinstance(left, abstract.Empty) and
         isinstance(other_type, abstract.Empty)):
@@ -751,10 +756,14 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
   def _instantiate_and_match(self, left, other_type, subst, view,
                              container=None):
     """Instantiate and match an abstract value."""
+
+  
     instance = left.instantiate(self._node, container=container)
     return self._match_all_bindings(instance, other_type, subst, view)
 
   def _match_all_bindings(self, var, other_type, subst, view):
+
+    # Miguel : Não entra aqui
     """Matches all of var's bindings against other_type."""
     new_substs = []
     for new_view in abstract_utils.get_views([var], self._node):
@@ -813,8 +822,10 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
       print(f"left = {left}, type = {type(left)}, other type = {other_type} , type other_type = {type(other_type)}")
       print(f"########################### left = {left.pyval} type = {type(left.pyval)} ##############################")
       print(f"######## other type = {other_type} and type = {type(other_type)} #############")
-      if isinstance(other_type,abstract.PyTDClass):
-        print(f"#################### refinement other type = {other_type.refinement} ###################################")
+      if isinstance(other_type,abstract.PyTDClassRefined):
+        print(f"#################### refinement {other_type.varName} = {other_type.refinement} ###################################")
+        input()
+      
       if isinstance(left.pyval, dict):
 
         self.xaa.append(list(left.pyval.keys())[-1])
@@ -866,6 +877,9 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     Returns:
       A new type parameter assignment if the matching succeeded, None otherwise.
     """
+    print(f"match callable instance left = {left} , instance = {instance} , other_type = {other_type}")
+    if isinstance(left,abstract.PyTDClass) and isinstance(other_type,abstract.PyTDClass):
+      print(f"left  = {left} , other_type  = {other_type}")
     if (isinstance(left, abstract.TupleClass) or
         isinstance(instance, abstract.Tuple) or
         isinstance(other_type, abstract.TupleClass)):
@@ -880,6 +894,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
 
   def _match_maybe_parameterized_instance(self, left, instance, other_type,
                                           subst, view):
+    # Miguel : recebe 2x o tipo do y , e o valor do x no instance
     """Used by _match_instance."""
     def assert_classes_match(cls1, cls2):
       # We need the somewhat complex assertion below to allow internal
@@ -922,6 +937,8 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
   def _match_heterogeneous_tuple_instance(self, left, instance, other_type,
                                           subst, view):
     """Used by _match_instance."""
+
+    # Não entra aqui
     if isinstance(instance, abstract.Tuple):
       if isinstance(other_type, abstract.TupleClass):
         if instance.tuple_length == other_type.tuple_length:
@@ -981,6 +998,8 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     return subst
 
   def _match_callable_instance(self, left, instance, other_type, subst, view):
+
+    # Miguel : Não entra aqui
     """Used by _match_instance."""
     if (not isinstance(instance, abstract.SimpleValue) or
         not isinstance(other_type, abstract.ParameterizedClass)):
@@ -1012,6 +1031,8 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     return subst
 
   def _match_dict_against_typed_dict(self, left, other_type):
+
+    # Miguel : Não entra aqui
     assert isinstance(other_type, typed_dict.TypedDictClass)
     if not isinstance(left, abstract.Dict):
       return False
@@ -1032,6 +1053,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
 
   def _get_attribute_names(self, left):
     """Get the attributes implemented (or implicit) on a type."""
+    # Miguel : Não entra aqui
     left_attributes = set()
     if isinstance(left, abstract.Module):
       _ = left.items()  # loads all attributes into members
@@ -1057,6 +1079,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     Returns:
       A new type parameter assignment if the matching succeeded, None otherwise.
     """
+    # Miguel Não entra aqui
     if isinstance(left.cls, abstract.AMBIGUOUS_OR_EMPTY):
       return subst
     elif left.cls.is_dynamic:
@@ -1085,6 +1108,8 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     # For protocol matching, we want to look up attributes on classes (not
     # instances) so that we get unbound methods. This means that we have to
     # manually call __get__ on property instances
+
+    # Miguel: Não entra aqui
     _, attribute = self.ctx.attribute_handler.get_attribute(
         self._node, cls, name, cls.to_binding(self._node))
     if not attribute:
@@ -1110,6 +1135,8 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     return resolved_attribute
 
   def _get_type(self, value):
+
+    # Miguel : Não entra aqui
     cls = value.cls
     if (not isinstance(cls, (abstract.PyTDClass, abstract.InterpreterClass)) or
         not cls.template):
@@ -1129,6 +1156,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     return cls
 
   def _get_attribute_types(self, other_type, attribute):
+    # Miguel Não entra aqui
     if not abstract_utils.is_callable(attribute):
       typ = self._get_type(attribute)
       if typ:
@@ -1165,6 +1193,8 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     Returns:
       A new type parameter assignment if the matching succeeded, None otherwise.
     """
+
+    # Miguel : Não entra aqui
     left_attribute = self._get_attribute_for_protocol_matching(
         left.cls, attribute, left)
     if left_attribute is None:

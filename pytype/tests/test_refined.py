@@ -11,7 +11,7 @@ class TestRefined(test_base.BaseTest):
       from typing_extensions import Annotated
       x: Annotated[int, "_ > 0"]
       y: Annotated[int,"_ < 10"]
-      x = 1
+      y = 10
       x = 2
       y = x
       
