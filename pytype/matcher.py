@@ -252,7 +252,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
 
   def match_var_against_type(self, var, other_type, subst, view):
     """Match a variable against a type."""
-    print(f"match_var_against_type   var = {var}, other_type = {other_type}")
+    #print(f"match_var_against_type   var = {var}, other_type = {other_type}")
 
     # Miguel : ParameterizedClasses , pode ser aqui mas acho que nao 
     self._reset_errors()
@@ -303,9 +303,9 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     return subst
 
   def _match_value_against_type(self, value, other_type, subst, view):
-    print("############################################################")
-    print(f"othertype = {other_type}, and value = {value}, type value = {type(value)}")
-    print("#############################################################")
+    #print("############################################################")
+    #print(f"othertype = {other_type}, and value = {value}, type value = {type(value)}")
+    #print("#############################################################")
     
     """One-way unify value into pytd type given a substitution.
 
@@ -318,9 +318,9 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
       A new (or unmodified original) substitution dict if the matching
       succeeded, None otherwise.
     """
-    print(f"### value {value} ###")
+    # print(f"### value {value} ###")
     left = value.data
-    print(f"### value.data {left} ###")
+    # print(f"### value.data {left} ###")
     assert isinstance(left, abstract.BaseValue), left
     assert isinstance(other_type, abstract.BaseValue), other_type
     # Unwrap Final[T] here
@@ -877,9 +877,9 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
     Returns:
       A new type parameter assignment if the matching succeeded, None otherwise.
     """
-    print(f"match callable instance left = {left} , instance = {instance} , other_type = {other_type}")
-    if isinstance(left,abstract.PyTDClass) and isinstance(other_type,abstract.PyTDClass):
-      print(f"left  = {left} , other_type  = {other_type}")
+    #print(f"match callable instance left = {left} , instance = {instance} , other_type = {other_type}")
+    #if isinstance(left,abstract.PyTDClass) and isinstance(other_type,abstract.PyTDClass):
+      #print(f"left  = {left} , other_type  = {other_type}")
     if (isinstance(left, abstract.TupleClass) or
         isinstance(instance, abstract.Tuple) or
         isinstance(other_type, abstract.TupleClass)):

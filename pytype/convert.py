@@ -681,7 +681,7 @@ class Converter(utils.ContextWeakrefMixin):
         try:
           cls = abstract.PyTDClassRefined(base_name,pyval,self.ctx)
           print(f"Create cls = {type(cls)}")
-          cls = abstract.PyTDClass.make(base_name, pyval, self.ctx)
+          #cls = abstract.PyTDClass.make(base_name, pyval, self.ctx)
         except mro.MROError as e:
           self.ctx.errorlog.mro_error(self.ctx.vm.frames, base_name, e.mro_seqs)
           cls = self.unsolvable

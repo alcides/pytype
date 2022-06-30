@@ -122,8 +122,9 @@ class Annotated(abstract.AnnotationClass):
       self.ctx.errorlog.invalid_annotation(self.ctx.vm.frames, self, error)
     # discard annotations
     # TODO: This is where the refinement information needs to be stored
-    inner[0].add_refinement(inner[1].pyval)
-    print(f"inner0 refinement = {inner[0].refinement}")
+    if isinstance(inner[0],abstract.PyTDClassRefined):
+      inner[0].add_refinement(inner[1].pyval)
+      print(f"inner0 refinement = {inner[0].refinement}")
     return inner[0]
 
 

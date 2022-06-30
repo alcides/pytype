@@ -699,9 +699,7 @@ class VirtualMachine:
     print(f"store value state = {state} , name = {name} , value = {value}")
     if local:
       target = self.frame.f_locals
-      print("local")
     else:
-      print("global")
       target = self.frame.f_globals
     node = self.ctx.attribute_handler.set_attribute(state.node, target, name,
                                                     value)
@@ -1734,9 +1732,10 @@ class VirtualMachine:
           self.simple_stack(),
           allowed_type_params=self.frame.type_params)
 
-      typ.add_var_name(name)
+      if isinstance(typ,abstract.PyTDClassRefined):
+          typ.add_var_name(name)
         
-      print(f"var_name = {name} refinement = {typ.cls}, typ = {type(typ.pytd_cls)}")
+      print(f"var_name = {name} refinement = {typ.refinement}, typ = {typ}")
       # TODO : enviar para o meu codigo z3
       input()
       self._record_annotation(state.node, op, name, typ)
