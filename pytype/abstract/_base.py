@@ -403,6 +403,7 @@ def _compute_template(val: Any):
     GenericTypeError: if the type annotation for generic type is incorrect
   """
   if _isinstance(val, "PyTDClass"):
+    # Miguel: Não entra aqui
     return [
         val.ctx.convert.constant_to_value(itm.type_param)
         for itm in val.pytd_cls.template

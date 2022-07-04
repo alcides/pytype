@@ -22,14 +22,11 @@ class AnnotationClass(_instance_base.SimpleValue, mixin.HasSlots):
 
   def __init__(self, name, ctx):
     super().__init__(name, ctx)
-    print(f"ctx = {ctx.root_node.program.cfg_nodes}")
-    print(f"ctx dir = {dir(ctx.root_node.program.cfg_nodes)}")
     mixin.HasSlots.init_mixin(self)
     self.set_slot("__getitem__", self.getitem_slot)
 
   def getitem_slot(self, node, slice_var):
     """Custom __getitem__ implementation."""
-    print(f"slice var = {slice_var.data}")
     slice_content = abstract_utils.maybe_extract_tuple(slice_var)
 
     inner, ellipses = self._build_inner(slice_content)

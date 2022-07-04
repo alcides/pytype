@@ -444,7 +444,6 @@ def _get_pytd_class_signature_map(cls, ctx):
   assert isinstance(cls, abstract.PyTDClassRefined)
   if cls in ctx.method_signature_map:
     return ctx.method_signature_map[cls]
-
   method_signature_map = {}
   pytd_cls = cls.pytd_cls
   for pytd_func in pytd_cls.methods:

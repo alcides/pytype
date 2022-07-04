@@ -335,6 +335,7 @@ class PyTDClass(
     if pytd_cls.metaclass is None:
       metaclass = None
     else:
+      # Miguel : Não entra aqui
       metaclass = self.ctx.convert.constant_to_value(
           pytd_cls.metaclass,
           subst=datatypes.AliasingDict(),
@@ -446,6 +447,7 @@ class PyTDClass(
 
   def _convert_member(self, name, member, subst=None):
     """Convert a member as a variable. For lazy lookup."""
+    # Miguel Não entra aqui
     subst = subst or datatypes.AliasingDict()
     node = self.ctx.root_node
     if isinstance(member, pytd.Constant):
@@ -461,6 +463,7 @@ class PyTDClass(
       raise AssertionError("Invalid class member %s" % pytd_utils.Print(member))
 
   def _new_instance(self, container, node, args):
+    # Miguel Não entra aqui
     if self.full_name == "builtins.tuple" and args.is_empty():
       value = _instances.Tuple((), self.ctx)
     else:
@@ -496,6 +499,7 @@ class PyTDClass(
     Returns:
       The converted attribute.
     """
+    # Miguel Não entra aqui
     if name not in self.pytd_cls:
       return None
     c = self.pytd_cls.Lookup(name)
@@ -695,6 +699,7 @@ class ParameterizedClass(
         if param is None:
           formal_type_parameters[name] = self.ctx.convert.unsolvable
         else:
+    # Miguel Não entra aqui
           formal_type_parameters[name] = self.ctx.convert.constant_to_value(
               param, self._formal_type_parameters.subst, self.ctx.root_node)
       self._formal_type_parameters = formal_type_parameters

@@ -461,6 +461,7 @@ def not_supported_yet(name, ctx, *, ast=None, details=None):
   full_name = f"{ast.name}.{name}"
   ctx.errorlog.not_supported_yet(ctx.vm.frames, full_name, details=details)
   pytd_type = pytd.ToType(ast.Lookup(full_name), True, True, True)
+  # Miguel: Não entra aqui
   return ctx.convert.constant_to_value(pytd_type, node=ctx.root_node)
 
 

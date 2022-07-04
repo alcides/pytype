@@ -377,6 +377,7 @@ class List(_instance_base.Instance, mixin.HasSlots, mixin.PythonConstant):
       abstract_utils.ConversionError: If the data could not be converted.
     """
     if isinstance(data, ConcreteValue):
+      # Miguel: Não entra aqui
       return self.ctx.convert.value_to_constant(data, (int, type(None)))
     elif isinstance(data, _instance_base.Instance):
       if data.cls != self.ctx.convert.int_type:

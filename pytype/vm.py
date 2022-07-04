@@ -198,6 +198,8 @@ class VirtualMachine:
     Raises:
       VirtualMachineError: if a fatal error occurs.
     """
+    print(f"run instruction args -> op =  {op} /// state = {state}")
+
     _opcode_counter.inc(op.name)
     self.frame.current_opcode = op
     self._importing = "IMPORT" in op.__class__.__name__
@@ -205,9 +207,11 @@ class VirtualMachine:
       vm_utils.log_opcode(op, state, self.frame, len(self.frames))
     # dispatch
     bytecode_fn = getattr(self, "byte_%s" % op.name, None)
+    print(f"bytecode_fn = {bytecode_fn}")
     if bytecode_fn is None:
       raise VirtualMachineError("Unknown opcode: %s" % op.name)
     state = bytecode_fn(state, op)
+    print(f"run instruction state = {state}, data_stack = {state.data_stack} dir = {dir(state)}")
     if state.why in ("reraise", "NoReturn"):
       state = state.set_why("exception")
     self.frame.current_opcode = None
@@ -215,6 +219,7 @@ class VirtualMachine:
 
   def run_frame(self, frame, node, annotated_locals=None):
     """Run a frame (typically belonging to a method)."""
+    print(f"start run frame -> frame = {frame} , node= {node}")
     self.push_frame(frame)
     frame.states[frame.f_code.first_opcode] = frame_state.FrameState.init(
         node, self.ctx)
@@ -356,6 +361,7 @@ class VirtualMachine:
 
   def resume_frame(self, node, frame):
     frame.f_back = self.frame
+    #Miguel: Não entra aqui
     log.info("resume_frame: %r", frame)
     node, val = self.run_frame(frame, node)
     frame.f_back = None
@@ -642,8 +648,10 @@ class VirtualMachine:
       return self.load_from(state, self.frame.f_builtins, name)
 
   def load_constant(self, state, op, raw_const):
+    print(f"load constant op = {op}, state = {state.node}, raw_const = {raw_const}")
     const = self.ctx.convert.constant_to_var(raw_const, node=state.node)
     self.trace_opcode(op, raw_const, const)
+    print(f"load constant const = {const}")
     return state.push(const)
 
   def _load_annotation(self, node, name):
@@ -765,9 +773,11 @@ class VirtualMachine:
     """Pop a value off the stack and store it in a variable."""
     state, orig_val = state.pop()
     annotations_dict = self.current_annotated_locals if local else None
+    print(f"pop and store, name = {name} //// state = {state} /// op = {op}")
     value = self._apply_annotation(
         state, op, name, orig_val, annotations_dict, check_types=True)
     value = self._process_annotations(state.node, name, value)
+    print(f"pop and store value = {value}")
     state = state.forward_cfg_node()
     state = self._store_value(state, name, value, local)
     self.trace_opcode(op, name, value)
@@ -1008,6 +1018,7 @@ class VirtualMachine:
       assert level > 0
       ast = self.ctx.loader.import_relative(level)
     if ast:
+      # Miguel Nao entra aqui
       return self.ctx.convert.constant_to_value(
           ast, subst=datatypes.AliasingDict(), node=self.ctx.root_node)
     else:
@@ -1208,10 +1219,15 @@ class VirtualMachine:
 
   def byte_INPLACE_TRUE_DIVIDE(self, state, op):
     return self.inplace_operator(state, "__itruediv__")
-
+  
+  last_load_const = "None"
+  
   def byte_LOAD_CONST(self, state, op):
     try:
+      print(f"byte load const where raw const is = {self.frame.f_code.co_consts}")
       raw_const = self.frame.f_code.co_consts[op.arg]
+      self.last_load_const = raw_const
+      print(f"update last_load_const = {self.last_load_const}")
     except IndexError:
       # We have tried to access an undefined closure variable.
       # There is an associated LOAD_DEREF failure where the error will be
@@ -1268,8 +1284,11 @@ class VirtualMachine:
   def byte_LOAD_NAME(self, state, op):
     """Load a name. Can be a local, global, or builtin."""
     name = self.frame.f_code.co_names[op.arg]
+    self.last_load_const = name
     try:
       state, val = self.load_local(state, name)
+
+      
     except KeyError:
       try:
         state, val = self.load_global(state, name)
@@ -1292,7 +1311,11 @@ class VirtualMachine:
     return state.push(val)
 
   def byte_STORE_NAME(self, state, op):
+    print("byte_store_name")
+    print(f"op = {op} /// state = {state}")
     name = self.frame.f_code.co_names[op.arg]
+    print(f"{name} = {self.last_load_const}")
+    input()
     return self._pop_and_store(state, op, name, local=True)
 
   def byte_DELETE_NAME(self, state, op):
@@ -1319,6 +1342,7 @@ class VirtualMachine:
     return state.push(val)
 
   def byte_STORE_FAST(self, state, op):
+    print("byte_store_fast")
     name = self.frame.f_code.co_varnames[op.arg]
     return self._pop_and_store(state, op, name, local=True)
 
@@ -1348,6 +1372,7 @@ class VirtualMachine:
     return state.push(val)
 
   def byte_STORE_GLOBAL(self, state, op):
+    print("byte_store_global")
     name = self.frame.f_code.co_names[op.arg]
     return self._pop_and_store(state, op, name, local=False)
 
@@ -1691,6 +1716,7 @@ class VirtualMachine:
 
   def byte_STORE_ATTR(self, state, op):
     """Store an attribute."""
+    # Miguel: Nao entra aqui
     name = self.frame.f_code.co_names[op.arg]
     state, (val, obj) = state.popn(2)
     node, annotations_dict, check_attribute_types = (

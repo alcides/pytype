@@ -399,6 +399,7 @@ class Converter(utils.ContextWeakrefMixin):
         a substitution.
       ValueError: if pytype is not of a known type.
     """
+    print(f"constant to var {pyval}")
     source_sets = source_sets or [[]]
     node = node or self.ctx.root_node
     if isinstance(pyval, pytd.NothingType):
@@ -408,6 +409,7 @@ class Converter(utils.ContextWeakrefMixin):
                                   discard_concrete_values)
     elif isinstance(pyval, abstract_utils.AsInstance):
       cls = pyval.cls
+      print(f"constant to var as Instance pyval.cls type = {type(pyval.cls)}")
       if isinstance(cls, pytd.AnythingType):
         return self.unsolvable.to_variable(node)
       elif (isinstance(pyval, abstract_utils.AsReturnValue) and
@@ -419,6 +421,7 @@ class Converter(utils.ContextWeakrefMixin):
                                     node, source_sets, discard_concrete_values)
       var = self.ctx.program.NewVariable()
       for t in pytd_utils.UnpackUnion(cls):
+        print(f"entrou no for type do t  = {type(t)}")
         if isinstance(t, pytd.TypeParameter):
           if not subst or t.full_name not in subst:
             raise self.TypeParameterError(t.full_name)
@@ -435,11 +438,13 @@ class Converter(utils.ContextWeakrefMixin):
               abstract_utils.AsInstance(t), subst, node)
           for source_set in source_sets:
             var.AddBinding(value, source_set, node)
+      print(f"return var in var to constant = {var.data}")
       return var
     elif isinstance(pyval, pytd.Constant):
       return self.constant_to_var(abstract_utils.AsInstance(pyval.type), subst,
                                   node, source_sets, discard_concrete_values)
     result = self.constant_to_value(pyval, subst, node)
+    print(f"result constant to var= {result}")
     if result is not None:
       return result.to_variable(node)
     # There might still be bugs on the abstract interpreter when it returns,
@@ -474,6 +479,8 @@ class Converter(utils.ContextWeakrefMixin):
     Returns:
       The converted constant. (Instance of BaseValue)
     """
+
+    print(f"constant to value pyval = {pyval}")
     node = node or self.ctx.root_node
     if pyval.__class__ is tuple:
       type_key = tuple(type(v) for v in pyval)
@@ -615,7 +622,11 @@ class Converter(utils.ContextWeakrefMixin):
       NotImplementedError: If we don't know how to convert a value.
       TypeParameterError: If we can't find a substitution for a type parameter.
     """
+    print("#######################################################################")
+    print(f"constant to value {pyval} , type = {type(pyval)}")
+    print("#######################################################################")
     if isinstance(pyval, str):
+      print(f"concrete value from str = {abstract.ConcreteValue(pyval, self.str_type, self.ctx)}")
       return abstract.ConcreteValue(pyval, self.str_type, self.ctx)
     elif isinstance(pyval, bytes):
       return abstract.ConcreteValue(pyval, self.bytes_type, self.ctx)
@@ -752,14 +763,18 @@ class Converter(utils.ContextWeakrefMixin):
           module=pyval.scope)
     elif isinstance(pyval, abstract_utils.AsInstance):
       cls = pyval.cls
+      print(f"##################### cls asInstance = {type(cls)} ##################")
       if isinstance(cls, pytd.LateType):
+        print("if1")
         actual = self._load_late_type(cls)
         if not isinstance(actual, pytd.ClassType):
           return self.unsolvable
         cls = actual.cls
       if isinstance(cls, pytd.ClassType):
+        print("if2")
         cls = cls.cls
       if isinstance(cls, pytd.GenericType) and cls.name == "typing.ClassVar":
+        print("if3")
         param, = cls.parameters
         return self.constant_to_value(
             abstract_utils.AsInstance(param), subst, self.ctx.root_node)
@@ -767,6 +782,7 @@ class Converter(utils.ContextWeakrefMixin):
                                                  cls.template):
         # If we're converting a generic Class, need to create a new instance of
         # it. See test_classes.testGenericReinstantiated.
+        print("if4")
         if isinstance(cls, pytd.Class):
           params = tuple(t.type_param.upper_value for t in cls.template)
           cls = pytd.GenericType(base_type=pytd.ClassType(cls.name, cls),
@@ -817,6 +833,7 @@ class Converter(utils.ContextWeakrefMixin):
             instance.merge_instance_type_parameter(node, formal.name, p)
           return instance
       elif isinstance(cls, pytd.Class):
+        print(f"if5 - {type(cls)}")
         assert not cls.template
         # This key is also used in __init__
         key = (abstract.Instance, cls)
@@ -832,8 +849,10 @@ class Converter(utils.ContextWeakrefMixin):
               instance = abstract.Instance(mycls, self.ctx)
           log.info("New pytd instance for %s: %r", cls.name, instance)
           self._convert_cache[key] = instance
+        print(f"convert cache  = {self._convert_cache[key]} , key = {type(key)}")
         return self._convert_cache[key]
       elif isinstance(cls, pytd.Literal):
+        print("if6")
         return self._get_literal_value(cls.value, subst)
       else:
         return self.constant_to_value(cls, subst, self.ctx.root_node)

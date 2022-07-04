@@ -798,6 +798,7 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
       A new type parameter assignment if the matching succeeded, None otherwise.
     """
     if isinstance(other_type, abstract.LiteralClass):
+      # Miguel : Não entra aqui
       other_value = other_type.value
       if isinstance(left, abstract.ConcreteValue) and isinstance(
           other_value, abstract.ConcreteValue):
@@ -819,21 +820,21 @@ class AbstractMatcher(utils.ContextWeakrefMixin):
         self._noniterable_str_error = NonIterableStrError(left.cls, other_type)
         return None
       base = self.match_from_mro(left.cls, other_type)
-      print(f"left = {left}, type = {type(left)}, other type = {other_type} , type other_type = {type(other_type)}")
-      print(f"########################### left = {left.pyval} type = {type(left.pyval)} ##############################")
-      print(f"######## other type = {other_type} and type = {type(other_type)} #############")
-      if isinstance(other_type,abstract.PyTDClassRefined):
-        print(f"#################### refinement {other_type.varName} = {other_type.refinement} ###################################")
-        input()
+      # print(f"left = {left}, type = {type(left)}, other type = {other_type} , type other_type = {type(other_type)}")
+      # #print(f"########################### left = {left.pyval} type = {type(left.pyval)} ##############################")
+      # print(f"######## other type = {other_type} and type = {type(other_type)} #############")
       
-      if isinstance(left.pyval, dict):
+      # if isinstance(left.pyval, dict):
 
-        self.xaa.append(list(left.pyval.keys())[-1])
-        print(f"appended {list(left.pyval.keys())[-1]} in list {list(left.pyval.keys())}")
+      #   self.xaa.append(list(left.pyval.keys())[-1])
+      #   print(f"appended {list(left.pyval.keys())[-1]} in list {list(left.pyval.keys())}")
         
-      else: 
-        print(f" left.pyval = {left.pyval} e o tipo é {type(left.pyval)}")
-        print(f"{self.xaa[-1]} = {left.pyval}")
+      # else: 
+      #   print(f" left.pyval = {left.pyval} e o tipo é {type(left.pyval)}")
+      #   print(f"{self.xaa[-1]} = {left.pyval}")
+
+      # if isinstance(other_type,abstract.PyTDClassRefined):
+      #   print(f"#################### refinement {other_type.varName} = {other_type.refinement} ###################################")
 
       if base is None:
         if other_type.is_protocol:
